@@ -1,7 +1,7 @@
 // src/pages/PostsPage.tsx
 
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { Container, Row, Col, Card, Button, Pagination } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import PostService from "../services/PostService";
 
@@ -14,10 +14,13 @@ interface Post {
     username: string;
   };
   createdAt: string;
+  likeCount: number;
 }
 
 const PostsPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   const navigate = useNavigate();
 
@@ -25,25 +28,58 @@ const PostsPage: React.FC = () => {
     navigate("/create-post");
   };
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const data = await PostService.getAllPosts();
-        setPosts(data.data); // Adjust according to your API response structure
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      }
-    };
+  const fetchPosts = async () => {
+    try {
+      const { data, totalPages } = await PostService.getAllPosts(currentPage);
+      setPosts(data); // Set the posts in state
+      setTotalPages(totalPages); // Update total pages
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [currentPage]);
+
+  const handleLike = async (postId: string) => {
+    try {
+      await PostService.likePost(postId);
+      // Optionally refresh the post list to show the new like count
+      // This could be optimized to only update the like count for the liked post
+      fetchPosts();
+    } catch (error) {
+      await PostService.unlikePost(postId);
+      console.error("Error liking the post:", error);
+      fetchPosts();
+    }
+  };
+
+  // Update the fetchPosts function to be accessible outside useEffect
+
+  const renderPagination = () => {
+    let items = [];
+    for (let number = 1; number <= totalPages; number++) {
+      items.push(
+        <Pagination.Item
+          key={number}
+          active={number === currentPage}
+          onClick={() => setCurrentPage(number)}
+        >
+          {number}
+        </Pagination.Item>
+      );
+    }
+
+    return <Pagination>{items}</Pagination>;
+  };
 
   return (
     <Container>
       <h1>Posts</h1>
       <Row>
         <Col>
-          <Button onClick={handleCreatePost} className="mb-3">
+          <Button onClick={handleCreatePost} className="btn-success mb-3">
             Create New Post
           </Button>
         </Col>
@@ -56,7 +92,16 @@ const PostsPage: React.FC = () => {
                 <Card.Title>{post.title}</Card.Title>
                 <Card.Text>{post.body.substring(0, 100)}...</Card.Text>
                 <Link to={`/posts/${post._id}`}>
-                  <Button variant="primary">Read More</Button>
+                  <Button>Read Post</Button>
+                </Link>
+                <Link to={``}>
+                  <Button
+                    variant="outline-success"
+                    className="mx-2"
+                    onClick={() => handleLike(post._id)}
+                  >
+                    👍 {post.likeCount}
+                  </Button>
                 </Link>
               </Card.Body>
               <Card.Footer>
@@ -69,6 +114,7 @@ const PostsPage: React.FC = () => {
           </Col>
         ))}
       </Row>
+      {renderPagination()} {/* Call the pagination render function */}
     </Container>
   );
 };

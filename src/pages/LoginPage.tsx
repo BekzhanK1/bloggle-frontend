@@ -16,8 +16,8 @@ const LoginPage: React.FC = () => {
 
     try {
       await AuthService.login(email, password);
-      window.location.reload();
       navigate("/"); // Redirect to home page after successful login
+      window.location.reload();
     } catch (error: any) {
       setError(error.response.data.message || "Failed to log in");
     }
