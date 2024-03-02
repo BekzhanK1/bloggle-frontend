@@ -1,9 +1,10 @@
 // src/pages/PostsPage.tsx
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Container, Row, Col, Card, Button, Pagination } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import PostService from "../services/PostService";
+import AuthContext from "../contexts/AuthContext";
 
 interface Post {
   _id: string;
@@ -21,6 +22,15 @@ const PostsPage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const authContext = useContext(AuthContext);
+
+  if (!authContext) {
+    // handle the case where authContext is null
+    console.error("AuthContext is not available");
+    return null; // or handle this case appropriately
+  }
+
+  const { isAuthenticated } = authContext;
 
   const navigate = useNavigate();
 
@@ -94,15 +104,24 @@ const PostsPage: React.FC = () => {
                 <Link to={`/posts/${post._id}`}>
                   <Button>Read Post</Button>
                 </Link>
-                <Link to={``}>
-                  <Button
-                    variant="outline-success"
-                    className="mx-2"
-                    onClick={() => handleLike(post._id)}
-                  >
-                    👍 {post.likeCount}
-                  </Button>
-                </Link>
+                {isAuthenticated && (
+                  <Link to={``}>
+                    <Button
+                      variant="outline-success"
+                      className="mx-2"
+                      onClick={() => handleLike(post._id)}
+                    >
+                      👍 {post.likeCount}
+                    </Button>
+                  </Link>
+                )}
+                {!isAuthenticated && (
+                  <Link to={"/create-post"}>
+                    <Button variant="outline-success" className="mx-2">
+                      👍 {post.likeCount}
+                    </Button>
+                  </Link>
+                )}
               </Card.Body>
               <Card.Footer>
                 <small className="text-muted">
