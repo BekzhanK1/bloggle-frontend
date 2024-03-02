@@ -16,6 +16,7 @@ interface Post {
   };
   createdAt: string;
   likeCount: number;
+  likes: string[];
 }
 
 const PostsPage: React.FC = () => {
@@ -30,10 +31,9 @@ const PostsPage: React.FC = () => {
     return null; // or handle this case appropriately
   }
 
-  const { isAuthenticated } = authContext;
-
+  const { isAuthenticated } = useContext(AuthContext) ?? {};
   const navigate = useNavigate();
-
+  let userId = JSON.parse(localStorage.getItem("userId") || '"0"');
   const handleCreatePost = () => {
     navigate("/create-post");
   };
@@ -60,7 +60,6 @@ const PostsPage: React.FC = () => {
       fetchPosts();
     } catch (error) {
       await PostService.unlikePost(postId);
-      console.error("Error liking the post:", error);
       fetchPosts();
     }
   };
@@ -107,7 +106,11 @@ const PostsPage: React.FC = () => {
                 {isAuthenticated && (
                   <Link to={``}>
                     <Button
-                      variant="outline-success"
+                      variant={
+                        post.likes.includes(userId)
+                          ? "success"
+                          : "outline-success"
+                      }
                       className="mx-2"
                       onClick={() => handleLike(post._id)}
                     >
