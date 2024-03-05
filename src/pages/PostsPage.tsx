@@ -58,9 +58,19 @@ const PostsPage: React.FC = () => {
       // Optionally refresh the post list to show the new like count
       // This could be optimized to only update the like count for the liked post
       fetchPosts();
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  };
+
+  const handleUnlike = async (postId: string) => {
+    try {
       await PostService.unlikePost(postId);
+      // Optionally refresh the post list to show the new like count
+      // This could be optimized to only update the like count for the liked post
       fetchPosts();
+    } catch (error: any) {
+      console.log(error.message);
     }
   };
 
@@ -88,9 +98,19 @@ const PostsPage: React.FC = () => {
       <h1>Posts</h1>
       <Row>
         <Col>
-          <Button onClick={handleCreatePost} className="btn-success mb-3">
-            Create New Post
-          </Button>
+          {!isAuthenticated && (
+            <Link to={"/login"}>
+              <Button variant="primary" className="btn-success mb-3">
+                New Post
+              </Button>
+            </Link>
+          )}
+
+          {isAuthenticated && (
+            <Button onClick={handleCreatePost} className="btn-success mb-3">
+              New post
+            </Button>
+          )}
         </Col>
       </Row>
       <Row xs={1} md={2} lg={3} className="g-4">
@@ -104,24 +124,31 @@ const PostsPage: React.FC = () => {
                   <Button>Read Post</Button>
                 </Link>
                 {isAuthenticated && (
-                  <Link to={``}>
-                    <Button
-                      variant={
-                        post.likes.includes(userId)
-                          ? "success"
-                          : "outline-success"
-                      }
-                      className="mx-2"
-                      onClick={() => handleLike(post._id)}
-                    >
-                      👍 {post.likeCount}
-                    </Button>
-                  </Link>
+                  <>
+                    <Link to={``}>
+                      <Button
+                        variant={
+                          post.likes.includes(userId) ? "warning" : "secondary"
+                        }
+                        className="mx-2"
+                        onClick={
+                          post.likes.includes(userId)
+                            ? () => handleUnlike(post._id)
+                            : () => handleLike(post._id)
+                        }
+                      >
+                        ❤️ {post.likeCount}
+                      </Button>
+                    </Link>
+                    <Link to={`/posts/${post._id}`}>
+                      <Button variant="success">Comments</Button>
+                    </Link>
+                  </>
                 )}
                 {!isAuthenticated && (
-                  <Link to={"/create-post"}>
+                  <Link to={"/login"}>
                     <Button variant="outline-success" className="mx-2">
-                      👍 {post.likeCount}
+                      ❤️ {post.likeCount}
                     </Button>
                   </Link>
                 )}
@@ -136,7 +163,7 @@ const PostsPage: React.FC = () => {
           </Col>
         ))}
       </Row>
-      {renderPagination()} {/* Call the pagination render function */}
+      {renderPagination()}
     </Container>
   );
 };

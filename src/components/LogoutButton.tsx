@@ -8,10 +8,17 @@ const LogoutButton: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Clear user from local storage
-    localStorage.removeItem("user");
-    window.location.reload();
-    navigate("/posts");
+    const confirmed = window.confirm("Are you sure you want to logout?");
+    if (confirmed) {
+      try {
+        localStorage.removeItem("user");
+        localStorage.removeItem("userId");
+        navigate("/posts");
+        window.location.reload();
+      } catch (error) {
+        console.error("Error logging out", error);
+      }
+    }
   };
 
   return (
