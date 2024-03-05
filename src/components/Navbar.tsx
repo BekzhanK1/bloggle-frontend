@@ -19,7 +19,7 @@ const Navbar: React.FC = () => {
   const { isAuthenticated } = authContext;
 
   return (
-    <BootstrapNavbar bg="light" expand="lg">
+    <BootstrapNavbar bg="light" expand="lg" sticky="top">
       <Container>
         <BootstrapNavbar.Brand as={Link} to="/">
           Bloggle

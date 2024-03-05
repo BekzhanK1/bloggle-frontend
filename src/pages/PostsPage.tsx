@@ -90,7 +90,11 @@ const PostsPage: React.FC = () => {
       );
     }
 
-    return <Pagination>{items}</Pagination>;
+    return (
+      <>
+        <br /> <Pagination>{items}</Pagination>
+      </>
+    );
   };
 
   return (

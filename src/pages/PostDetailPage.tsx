@@ -24,6 +24,9 @@ const PostDetailPage: React.FC = () => {
 
   const authContext = useContext(AuthContext);
 
+  const userString = localStorage.getItem("user");
+  const userObj = JSON.parse(userString!);
+
   if (!authContext) {
     // handle the case where authContext is null
     console.error("AuthContext is not available");
@@ -81,18 +84,19 @@ const PostDetailPage: React.FC = () => {
               </small>
               {/* Assuming edit and delete options are only available to the post author or an admin */}
 
-              {isAuthenticated && (
-                <div className="post-controls">
-                  <Link to={`/edit-post/${post._id}`}>
-                    <Button variant="outline-primary" className="me-2">
-                      Edit
+              {isAuthenticated &&
+                post.author.username == userObj.user.username && (
+                  <div className="post-controls">
+                    <Link to={`/edit-post/${post._id}`}>
+                      <Button variant="outline-primary" className="me-2">
+                        Edit
+                      </Button>
+                    </Link>
+                    <Button variant="outline-danger" onClick={handleDelete}>
+                      Delete
                     </Button>
-                  </Link>
-                  <Button variant="outline-danger" onClick={handleDelete}>
-                    Delete
-                  </Button>
-                </div>
-              )}
+                  </div>
+                )}
             </Card.Footer>
           </Card>
         </Col>

@@ -1,6 +1,7 @@
 // src/services/AuthService.ts
 
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = "http://localhost:3000/api/users"; // Adjust based on your backend API endpoint
 
@@ -24,6 +25,12 @@ class AuthService {
       localStorage.setItem("userId", JSON.stringify(response.data.user._id));
     }
     return response.data;
+  }
+  async logout() {
+    const navigate = useNavigate();
+    localStorage.removeItem("user");
+    localStorage.removeItem("userId");
+    navigate("/login");
   }
 }
 

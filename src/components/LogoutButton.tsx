@@ -22,7 +22,7 @@ const LogoutButton: React.FC = () => {
   };
 
   return (
-    <Button onClick={handleLogout} variant="btn btn-danger btn-sm">
+    <Button onClick={handleLogout} variant="btn btn-danger" className="mx-2">
       Logout
     </Button>
   );
